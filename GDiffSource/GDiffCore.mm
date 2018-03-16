@@ -100,7 +100,7 @@ static id GDiffProcessor (NSArray<id<GDiffObjectProtocol>> *oldArray,
                     break;
                     
                 case GDiffOptionPointerPersonality:
-                    // flag the entry as updated if the pointers are not the same
+                    
                     if (newTemp != oldTemp) {
                         entry->update = YES;
                     }
@@ -142,12 +142,12 @@ static id GDiffProcessor (NSArray<id<GDiffObjectProtocol>> *oldArray,
         
         vector<NSInteger> deleteOffsets(oldCount), insertOffsets(newCount);
         NSInteger runningOffset = 0;
-        // iterate old array records checking for deletes
-        // incremement offset for each delete
+
+        // 重复检查删除旧数组记录
         for (NSInteger i = 0; i < oldCount; i++) {
             deleteOffsets[i] = runningOffset;
             const GDiffRecord record = oldResultsArray[i];
-            // if the record index in the new array doesn't exist, its a delete
+            
             if (record.index == NSNotFound) {
                 addIndexToCollection(Deletes, i, nil);
                 runningOffset++;
@@ -156,24 +156,24 @@ static id GDiffProcessor (NSArray<id<GDiffObjectProtocol>> *oldArray,
             addIndexToMap(i, oldArray, oldMap);
         }
         
-        // reset and track offsets from inserted items to calculate where items have moved
+        // 重置 已经从插入项
         runningOffset = 0;
         for (NSInteger i = 0; i < newCount; i++) {
             insertOffsets[i] = runningOffset;
             const GDiffRecord record = newResultsArray[i];
             const NSInteger oldIndex = record.index;
-            // add to inserts if the opposing index is NSNotFound
+        
             if (record.index == NSNotFound) {
                 addIndexToCollection(Inserts, i, nil);
                 runningOffset++;
             } else {
-                // note that an entry can be updated /and/ moved
+                // updated /and/ moved
                 if (record.entry->update) {
                     addIndexToCollection(Updates, oldIndex, nil);
                 }
                 
-                // calculate the offset and determine if there was a move
-                // if the indexes match, ignore the index
+                
+                // 计算偏移量和确定其是否有移动
                 const NSInteger insertOffset = insertOffsets[i];
                 const NSInteger deleteOffset = deleteOffsets[oldIndex];
                 if ((oldIndex - deleteOffset + insertOffset) != i) {
